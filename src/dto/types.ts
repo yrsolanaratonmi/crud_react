@@ -5,3 +5,9 @@ export interface CommentEntity {
   email: string,
   body: string;
 }
+
+export interface HeadCell {
+  id: keyof CommentEntity;
+  label: string;
+  numeric: boolean;
+}
