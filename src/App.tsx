@@ -59,6 +59,7 @@ export default function App() {
       );
     }
     setSelected(newSelected);
+
   };
 
   const handleChangePage = (event: unknown, newPage: number) => {
