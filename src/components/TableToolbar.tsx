@@ -1,6 +1,6 @@
 import { DeleteOutline } from "@mui/icons-material";
-import {Box, Button, Toolbar, Tooltip, Typography, alpha, OutlinedInput} from "@mui/material";
-import React, { ChangeEvent } from "react";
+import { Box, Button, OutlinedInput, Toolbar, Tooltip, Typography, alpha, debounce } from "@mui/material";
+import { ChangeEvent } from "react";
 
 interface TableToolbarProps {
     numSelected: number;
@@ -10,7 +10,9 @@ interface TableToolbarProps {
 
 function TableToolbar(props: TableToolbarProps) {
     const { numSelected, handleRemoveClick, handleSearchChange } = props;
-    // @ts-ignore
+
+    const debouncedSearch = debounce(handleSearchChange, 500)
+
     return (
         <Toolbar
             sx={{
@@ -31,18 +33,18 @@ function TableToolbar(props: TableToolbarProps) {
             >
                 {numSelected} selected
             </Typography>
-            <Box style={{display: 'flex', gap: '10px', height: '30px'}}>
-                    {numSelected > 0 && (
-                <Tooltip title="Delete">
-                    <Button variant="outlined" startIcon={<DeleteOutline />} onClick={() => handleRemoveClick()}>
-                        Delete
-                    </Button>
-                </Tooltip>
-            )}
-            <OutlinedInput
-    placeholder="Поиск комментария"
-    onChange={handleSearchChange}
-    />
+            <Box style={{ display: 'flex', gap: '10px', height: '30px' }}>
+                {numSelected > 0 && (
+                    <Tooltip title="Delete">
+                        <Button variant="outlined" startIcon={<DeleteOutline />} onClick={() => handleRemoveClick()}>
+                            Delete
+                        </Button>
+                    </Tooltip>
+                )}
+                <OutlinedInput
+                    placeholder="Поиск комментария"
+                    onChange={debouncedSearch}
+                />
             </Box>
         </Toolbar>
 

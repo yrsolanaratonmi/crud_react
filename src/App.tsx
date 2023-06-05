@@ -11,14 +11,14 @@ import TableHeader from './components/TableHeader';
 import TableToolbar from './components/TableToolbar';
 import { CommentEntity } from './dto/types';
 
-
-export default function EnhancedTable() {
+export default function App() {
   const [order, setOrder] = useState<'asc' | 'desc'>('asc');
   const [orderBy, setOrderBy] = useState<keyof CommentEntity>('email');
   const [selected, setSelected] = useState<readonly string[]>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [rows, setRows] = useState<Array<CommentEntity>>([])
+  const [filteredRows, setFilteredRows] = useState<Array<CommentEntity>>([])
 
   useEffect(() => {
     getComments().then((res: any) => setRows(res.data))
@@ -75,14 +75,14 @@ export default function EnhancedTable() {
       return !selected.includes(row.name)
     })
     setRows(filteredRows)
+    setSelected([]);
+
   }
 
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
-      const value = event.target.value;
-      const filteredRows = rows.filter((row: CommentEntity) => {
-      return row.name.includes(value)
-    })
-    setRows(filteredRows)
+    const value = event.target.value;
+    const filteredRows = rows.filter((row: CommentEntity) => row.name.includes(value))
+    setFilteredRows(filteredRows)
   }
 
   const isSelected = (name: string) => selected.indexOf(name) !== -1;
@@ -126,6 +126,7 @@ export default function EnhancedTable() {
               isSelected={isSelected}
               handleClick={handleClick}
               emptyRows={emptyRows}
+              filteredRows={filteredRows}
             ></MainTable>
           </Table>
         </TableContainer>
