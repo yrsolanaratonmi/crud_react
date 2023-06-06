@@ -1,22 +1,24 @@
 import { Checkbox, TableCell, TableRow } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getPost, getUser } from "../api/fetchData";
 import { CommentEntity, PostEntity, UserEntity } from "../dto/types";
 
 interface TableRowProps {
     isItemSelected: boolean;
     row: CommentEntity;
-    index: number
     handleClick: (event: any, name: string) => void;
     labelId: string;
 }
 
 const TableElement = (props: TableRowProps) => {
-    const { isItemSelected, row, index, handleClick, labelId } = props;
+    const { isItemSelected, row, handleClick, labelId } = props;
     const [currentPost, setCurrentPost] = useState<PostEntity>()
     const [currentUser, setCurrentUser] = useState<UserEntity>()
-    getPost(row.postId).then(res => setCurrentPost(res.data))
-    getUser(currentPost?.userId).then((res: any) => setCurrentUser(res.data))
+    useEffect(() => {
+        getPost(row.postId).then(res => setCurrentPost(res.data))
+        getUser(currentPost?.userId).then((res: any) => setCurrentUser(res.data))
+    }, [])
+
     return (
         <TableRow
             hover

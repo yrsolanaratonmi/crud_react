@@ -20,7 +20,6 @@ function MainTable(props: MainProps) {
             <TableElement
                 isItemSelected={isItemSelected}
                 row={row}
-                index={index}
                 handleClick={handleClick}
                 labelId={labelId}
             />
