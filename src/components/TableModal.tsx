@@ -1,22 +1,31 @@
-import { Box, Button, Modal } from "@mui/material"
-const TableModal = () => {
+import { Box, Modal } from "@mui/material";
+import { Dispatch, SetStateAction } from "react";
+
+interface TableModalProps {
+    setIsModalOpened: Dispatch<SetStateAction<boolean>>
+}
+const TableModal = (props: TableModalProps) => {
+    const { setIsModalOpened } = props;
     const styles ={
         container: {
             display: 'flex',
             justifyContent: 'center',
-            alignItems: 'center'
+            alignItems: 'center',
+        },
+        content: {
+            width: 400,
+            background: 'white',
+            padding: 5
         }
     }
     return (
         <>
-            <Button>Open modal</Button>
             <Modal
-                open={false}
-                aria-labelledby="parent-modal-title"
-                aria-describedby="parent-modal-description"
+                open={true}
+                onClose={() => setIsModalOpened(false)}
                 sx={styles.container}
             >
-                <Box sx={{ width: 400, background: 'black'}}>
+                <Box sx={styles.content}>
                     <h2 id="parent-modal-title">Text in a modal</h2>
                     <p id="parent-modal-description">
                         Duis mollis, est non commodo luctus, nisi erat porttitor ligula.

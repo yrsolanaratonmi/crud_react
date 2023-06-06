@@ -1,4 +1,5 @@
 import { TableBody, TableCell, TableRow } from "@mui/material";
+import { useState } from "react";
 import { CommentEntity } from "../dto/types";
 import TableElement from "./TableElement";
 
@@ -7,12 +8,15 @@ interface MainProps {
     isSelected: (name: string) => boolean;
     handleClick: (event: any, name: string) => void;
     emptyRows: number;
-    filteredRows: Array<CommentEntity>;
 }
 
 function MainTable(props: MainProps) {
-    const { visibleComments, isSelected, handleClick, emptyRows, filteredRows } = props;
-    const renderRows = (filteredRows.length ? filteredRows : visibleComments).map((row, index) => {
+    const { visibleComments, isSelected, handleClick, emptyRows } = props;
+    const [isModalOpened, setIsModalOpened] = useState<boolean>(false)
+
+
+
+    const renderRows = (visibleComments).map((row, index) => {
         const isItemSelected = isSelected(row.name);
         const labelId = `table-checkbox-${index}`;
 
@@ -22,6 +26,8 @@ function MainTable(props: MainProps) {
                 row={row}
                 handleClick={handleClick}
                 labelId={labelId}
+                isModalOpened={isModalOpened}
+                setIsModalOpened={setIsModalOpened}
             />
         )
     })
@@ -38,6 +44,7 @@ function MainTable(props: MainProps) {
                     <TableCell colSpan={6} />
                 </TableRow>
             )}
+
         </TableBody>
     )
 }

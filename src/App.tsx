@@ -3,12 +3,11 @@ import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
-import { ChangeEvent, useEffect, useMemo, useState } from 'react';
+import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { getComments } from './api/fetchData';
 import { getComparator, stableSort } from './api/utils';
 import MainTable from './components/MainTable';
 import TableHeader from './components/TableHeader';
-import TableModal from './components/TableModal';
 import TableToolbar from './components/TableToolbar';
 import { CommentEntity } from './dto/types';
 
@@ -18,34 +17,41 @@ export default function App() {
   const [selected, setSelected] = useState<readonly string[]>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [filteredRows, setFilteredRows] = useState<Array<CommentEntity>>([])
   const [comments, setComments] = useState<Array<CommentEntity>>([])
-
+const [allComments, setAllComments] = useState<Array<CommentEntity>>([]);
 
   useEffect(() => {
-    getComments().then(res => setComments(res.data))
+    fetchComments()
   }, []);
 
 
-  const handleRequestSort = (
+  function fetchComments() {
+    getComments().then(res => {
+      setComments(res.data)
+      setAllComments(res.data)
+    })
+  }
+
+
+  const handleRequestSort = useCallback((
     event: any,
     property: string,
   ) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
-  };
+  }, [order])
 
-  const handleSelectAllClick = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleSelectAllClick = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
       const newSelected = comments.map((n) => n.name);
       setSelected(newSelected);
       return;
     }
     setSelected([]);
-  };
+  }, [comments])
 
-  const handleClick = (event: any, name: string) => {
+  const handleClick = useCallback((event: any, name: string) => {
     const selectedIndex = selected.indexOf(name);
     let newSelected: readonly string[] = [];
 
@@ -63,8 +69,8 @@ export default function App() {
     }
     setSelected(newSelected);
 
-  };
-  // ToDo:Помыть попу вечером
+  }, [selected])
+
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -75,20 +81,21 @@ export default function App() {
     setPage(0);
   };
 
-  const handleRemoveClick = () => {
+  const handleRemoveClick = useCallback(() => {
     const filteredRows = comments.filter((row: CommentEntity) => {
       return !selected.includes(row.name)
     })
     setComments(filteredRows)
     setSelected([]);
+  }, [comments, selected])
 
-  }
+const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const value = event.target.value;
+  const filteredRows = allComments.filter((row: CommentEntity) => row.name.includes(value));
+  setComments(filteredRows);
+};
 
-  const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    const filteredRows = comments.filter((row: CommentEntity) => row.name.includes(value))
-    setFilteredRows(filteredRows)
-  }
+
 
   const isSelected = (name: string) => selected.indexOf(name) !== -1;
 
@@ -132,7 +139,6 @@ export default function App() {
               isSelected={isSelected}
               handleClick={handleClick}
               emptyRows={emptyRows}
-              filteredRows={filteredRows}
             ></MainTable>
           </Table>
         </TableContainer>
@@ -146,7 +152,6 @@ export default function App() {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Paper>
-      <TableModal/>
     </Box>
   );
 }
