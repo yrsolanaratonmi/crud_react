@@ -5,28 +5,31 @@ import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { getComments } from './api/fetchData';
-import { getComparator, stableSort } from './api/helpers';
+import { getComparator, stableSort } from './api/utils';
 import MainTable from './components/MainTable';
 import TableHeader from './components/TableHeader';
+import TableModal from './components/TableModal';
 import TableToolbar from './components/TableToolbar';
 import { CommentEntity } from './dto/types';
 
 export default function App() {
   const [order, setOrder] = useState<'asc' | 'desc'>('asc');
-  const [orderBy, setOrderBy] = useState<keyof CommentEntity>('email');
+  const [orderBy, setOrderBy] = useState<string>('email');
   const [selected, setSelected] = useState<readonly string[]>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [rows, setRows] = useState<Array<CommentEntity>>([])
   const [filteredRows, setFilteredRows] = useState<Array<CommentEntity>>([])
+  const [comments, setComments] = useState<Array<CommentEntity>>([])
+
 
   useEffect(() => {
-    getComments().then((res: any) => setRows(res.data))
+    getComments().then(res => setComments(res.data))
   }, []);
+
 
   const handleRequestSort = (
     event: any,
-    property: keyof CommentEntity,
+    property: string,
   ) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -35,7 +38,7 @@ export default function App() {
 
   const handleSelectAllClick = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelected = rows.map((n) => n.name);
+      const newSelected = comments.map((n) => n.name);
       setSelected(newSelected);
       return;
     }
@@ -61,6 +64,7 @@ export default function App() {
     setSelected(newSelected);
 
   };
+  // ToDo:Помыть попу вечером
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -72,32 +76,33 @@ export default function App() {
   };
 
   const handleRemoveClick = () => {
-    const filteredRows = rows.filter((row: CommentEntity) => {
+    const filteredRows = comments.filter((row: CommentEntity) => {
       return !selected.includes(row.name)
     })
-    setRows(filteredRows)
+    setComments(filteredRows)
     setSelected([]);
 
   }
 
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
-    const filteredRows = rows.filter((row: CommentEntity) => row.name.includes(value))
+    const filteredRows = comments.filter((row: CommentEntity) => row.name.includes(value))
     setFilteredRows(filteredRows)
   }
 
   const isSelected = (name: string) => selected.indexOf(name) !== -1;
 
   const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - comments.length) : 0;
 
-  const visibleRows = useMemo(
+  const visibleComments = useMemo(
     () =>
-      stableSort(rows, getComparator(order, orderBy)).slice(
+      stableSort(comments, getComparator(order, orderBy)).slice(
         page * rowsPerPage,
         page * rowsPerPage + rowsPerPage,
       ),
-    [order, orderBy, page, rows, rowsPerPage],
+    [order, orderBy, page, comments, rowsPerPage],
+
   );
 
   return (
@@ -120,10 +125,10 @@ export default function App() {
               orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
-              rowCount={rows.length}
+              rowCount={comments.length}
             />
             <MainTable
-              visibleRows={visibleRows}
+              visibleComments={visibleComments}
               isSelected={isSelected}
               handleClick={handleClick}
               emptyRows={emptyRows}
@@ -134,14 +139,14 @@ export default function App() {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
-          count={rows.length}
+          count={comments.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Paper>
-
+      <TableModal/>
     </Box>
   );
 }

@@ -1,19 +1,18 @@
 import { Box, TableCell, TableHead, TableRow, TableSortLabel } from "@mui/material";
 import { visuallyHidden } from '@mui/utils';
 import { ChangeEvent } from "react";
-import { CommentEntity, HeadCell } from "../dto/types";
 
 
 interface TableProps {
   numSelected: number;
-  onRequestSort: (event: any, property: keyof CommentEntity) => void;
+  onRequestSort: (event: any, property: string) => void;
   onSelectAllClick: (event: ChangeEvent<HTMLInputElement>) => void;
   order: 'asc' | 'desc';
   orderBy: string;
   rowCount: number;
 }
 
-const headCells: readonly HeadCell[] = [
+const headCells: Array<{id: string, numeric: boolean, label: string}> = [
   {
     id: 'name',
     numeric: false,
@@ -33,6 +32,16 @@ const headCells: readonly HeadCell[] = [
     id: 'body',
     numeric: false,
     label: 'Comment',
+  },
+  {
+    id: 'body',
+    numeric: false,
+    label: 'Post'
+  },
+  {
+    id: 'name',
+    numeric: false,
+    label: 'UserName'
   }
 ];
 
@@ -40,7 +49,7 @@ function TableHeader(props: TableProps) {
   const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } =
     props;
   const createSortHandler =
-    (property: keyof CommentEntity) => (event: any) => {
+    (property: string) => (event: any) => {
       onRequestSort(event, property);
     };
 
@@ -52,7 +61,7 @@ function TableHeader(props: TableProps) {
         </TableCell>
         {headCells.map((headCell) => (
           <TableCell
-            key={headCell.id}
+            key={Math.random()}
             align={headCell.numeric ? 'right' : 'left'}
             padding='normal'
             sortDirection={orderBy === headCell.id ? order : false}
