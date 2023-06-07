@@ -1,7 +1,8 @@
 import { Box, Modal } from "@mui/material";
-import { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react";
+import React, { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react";
 import { getCommentsByPost } from "../api/fetchData";
 import { CommentEntity, PostEntity, UserEntity } from "../dto/types";
+import ModalComments from "./ModalComments";
 
 interface TableModalProps {
     setIsModalOpened: Dispatch<SetStateAction<boolean>>;
@@ -10,8 +11,9 @@ interface TableModalProps {
 const TableModal = (props: TableModalProps) => {
     const { setIsModalOpened, rowToOpen } = props;
     const [currentPost, currentUser] = rowToOpen;
-type CommentEntityArray<T extends CommentEntity[] | []> = T extends CommentEntity[] ? T : [];
-const [allComments, setAllComments] = useState<CommentEntityArray<Array<CommentEntity>>>([]);
+    type CommentEntityArray<T extends CommentEntity[] | []> = T extends CommentEntity[] ? T : [];
+    const [allComments, setAllComments] = useState<CommentEntityArray<Array<CommentEntity>>>([]);
+    const [editIndex, setEditIndex] = useState<number>(-1)
 
     const styles = {
         container: {
@@ -27,6 +29,7 @@ const [allComments, setAllComments] = useState<CommentEntityArray<Array<CommentE
             padding: 5,
             border: '1px solid black'
         },
+
     }
 
     const fetchData = useCallback(async () => {
@@ -34,9 +37,23 @@ const [allComments, setAllComments] = useState<CommentEntityArray<Array<CommentE
         setAllComments(response.data)
     }, [currentPost?.id])
 
+    const changeComments = useCallback(
+        (index: number,
+        editValue: string,
+        setEditValue: Dispatch<SetStateAction<string>>
+        ) => {
+        const comments = [...allComments];
+        comments[index].body = editValue
+        setAllComments(comments)
+        console.log('Данные сохранены')
+        setEditIndex(-1)
+    }, [allComments])
+
     useEffect(() => {
         fetchData()
     }, [fetchData])
+
+
 
     const renderUserInfo = useCallback(() => {
         return (
@@ -93,36 +110,32 @@ const [allComments, setAllComments] = useState<CommentEntityArray<Array<CommentE
     const renderPostInfo = useCallback(() => {
         return (
             <>
-                <h2>Post Info</h2>
-                <table>
                     <tbody>
                         <tr>
-                            <td>Post Title</td>
                             <td>{currentPost?.title}</td>
-                        </tr>
-                        <tr>
-                            <td>Post Body</td>
                             <td>{currentPost?.body}</td>
                         </tr>
+
+
                     </tbody>
-                </table>
             </>
         )
     }, [currentPost])
 
 
     const renderComments = useCallback(() => {
-        return allComments.map((element: CommentEntity) => {
+        return allComments.map((element: CommentEntity, index: number) => {
             return (
-                <>
-                    <tr>
-                        <td>{element.name}</td>
-                        <td>{element.body}</td>
-                    </tr>
-                </>
+                <ModalComments
+                element={element}
+                editIndex={editIndex}
+                setEditIndex={setEditIndex}
+                index={index}
+                changeComments={changeComments}
+                />
             )
         })
-    }, [allComments])
+    }, [allComments, changeComments, editIndex])
 
     return (
         <>
@@ -133,14 +146,24 @@ const [allComments, setAllComments] = useState<CommentEntityArray<Array<CommentE
             >
                 <Box sx={styles.content}>
                     {renderUserInfo()}
-                    {renderPostInfo()}
                     <h2>
-                        All comments related to post
+                        Post Data
                     </h2>
                     <table>
                         <thead>
                             <th>Post Title</th>
                             <th>Post Body</th>
+                        </thead>
+                    {renderPostInfo()}
+                    </table>
+
+                    <h2>
+                        All comments related to post
+                    </h2>
+                    <table>
+                        <thead>
+                            <th>Comment Title</th>
+                            <th>Comment Body</th>
                         </thead>
                         <tbody>
                             {renderComments()}
@@ -152,4 +175,4 @@ const [allComments, setAllComments] = useState<CommentEntityArray<Array<CommentE
     )
 }
 
-export default TableModal
+export default React.memo(TableModal)

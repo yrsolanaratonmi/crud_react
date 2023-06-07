@@ -1,7 +1,8 @@
 import { Checkbox, TableCell, TableRow } from "@mui/material";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { getPost, getUser } from "../api/fetchData";
 import { CommentEntity, PostEntity, UserEntity } from "../dto/types";
+import React from "react";
 
 interface TableRowProps {
     isItemSelected: boolean;
@@ -9,12 +10,10 @@ interface TableRowProps {
     row: CommentEntity;
     handleClick: (event: any, name: string) => void;
     labelId: string;
-    isModalOpened: boolean;
-    setIsModalOpened: Dispatch<SetStateAction<boolean>>
 }
 
 const TableElement = (props: TableRowProps) => {
-    const { isItemSelected, handleClickTableRow, row, handleClick, labelId, isModalOpened, setIsModalOpened } = props;
+    const { isItemSelected, handleClickTableRow, row, handleClick, labelId } = props;
     const [currentPost, setCurrentPost] = useState<PostEntity>();
     const [currentUser, setCurrentUser] = useState<UserEntity>();
 
@@ -66,4 +65,4 @@ const TableElement = (props: TableRowProps) => {
     )
 }
 
-export default TableElement
+export default React.memo(TableElement)

@@ -1,15 +1,12 @@
 import { Box, TableCell, TableHead, TableRow, TableSortLabel } from "@mui/material";
 import { visuallyHidden } from '@mui/utils';
-import { ChangeEvent } from "react";
+import React from "react";
 
 
 interface TableProps {
-  numSelected: number;
   onRequestSort: (event: any, property: string) => void;
-  onSelectAllClick: (event: ChangeEvent<HTMLInputElement>) => void;
   order: 'asc' | 'desc';
   orderBy: string;
-  rowCount: number;
 }
 
 const headCells: Array<{id: string, numeric: boolean, label: string}> = [
@@ -46,8 +43,7 @@ const headCells: Array<{id: string, numeric: boolean, label: string}> = [
 ];
 
 function TableHeader(props: TableProps) {
-  const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } =
-    props;
+  const { order, orderBy, onRequestSort } = props;
   const createSortHandler =
     (property: string) => (event: any) => {
       onRequestSort(event, property);
@@ -85,4 +81,4 @@ function TableHeader(props: TableProps) {
   );
 }
 
-export default TableHeader
+export default React.memo(TableHeader)

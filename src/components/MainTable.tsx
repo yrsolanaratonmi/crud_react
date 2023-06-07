@@ -3,6 +3,7 @@ import { useCallback, useState } from "react";
 import { CommentEntity, PostEntity, UserEntity } from "../dto/types";
 import TableElement from "./TableElement";
 import TableModal from "./TableModal";
+import React from "react";
 
 interface MainProps {
     visibleComments: Array<CommentEntity>;
@@ -33,11 +34,9 @@ function MainTable(props: MainProps) {
                 row={row}
                 handleClick={handleClick}
                 labelId={labelId}
-                isModalOpened={isModalOpened}
-                setIsModalOpened={setIsModalOpened}
             />
         )
-    }), [handleClick, handleClickTableRow, isModalOpened, isSelected, visibleComments])
+    }), [handleClick, handleClickTableRow, isSelected, visibleComments])
 
     return (
         <TableBody>
@@ -59,4 +58,4 @@ function MainTable(props: MainProps) {
     )
 }
 
-export default MainTable
+export default React.memo(MainTable)

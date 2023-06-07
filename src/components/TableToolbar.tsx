@@ -1,15 +1,16 @@
 import { DeleteOutline } from "@mui/icons-material";
 import { Box, Button, OutlinedInput, Toolbar, Tooltip, Typography, alpha, debounce } from "@mui/material";
-import { ChangeEvent } from "react";
+import React, { ChangeEvent } from "react";
 
 interface TableToolbarProps {
     numSelected: number;
     handleRemoveClick: () => void;
     handleSearchChange: (event: ChangeEvent<HTMLInputElement>) => void;
+    handleCacheClick: () => void
 }
 
 function TableToolbar(props: TableToolbarProps) {
-    const { numSelected, handleRemoveClick, handleSearchChange } = props;
+    const { numSelected, handleRemoveClick, handleSearchChange, handleCacheClick } = props;
 
     const debouncedSearch = debounce(handleSearchChange, 500)
 
@@ -35,11 +36,18 @@ function TableToolbar(props: TableToolbarProps) {
             </Typography>
             <Box style={{ display: 'flex', gap: '10px', height: '30px' }}>
                 {numSelected > 0 && (
-                    <Tooltip title="Delete">
-                        <Button variant="outlined" startIcon={<DeleteOutline />} onClick={() => handleRemoveClick()}>
-                            Delete
-                        </Button>
-                    </Tooltip>
+                    <>
+                        <Tooltip title="Delete">
+                            <Button variant="outlined" startIcon={<DeleteOutline />} onClick={() => handleRemoveClick()}>
+                                Delete
+                            </Button>
+                        </Tooltip>
+                        <Tooltip title="Cache Data">
+                            <Button variant="outlined" onClick={() => handleCacheClick()}>
+                                Cache
+                            </Button>
+                        </Tooltip>
+                    </>
                 )}
                 <OutlinedInput
                     placeholder="Поиск комментария"
@@ -50,4 +58,4 @@ function TableToolbar(props: TableToolbarProps) {
 
     );
 }
-export default TableToolbar
+export default React.memo(TableToolbar)

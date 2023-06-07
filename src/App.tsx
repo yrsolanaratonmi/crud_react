@@ -18,19 +18,19 @@ function App() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [comments, setComments] = useState<Array<CommentEntity>>([])
-const [allComments, setAllComments] = useState<Array<CommentEntity>>([]);
+  const [allComments, setAllComments] = useState<Array<CommentEntity>>([]);
 
   useEffect(() => {
     fetchComments()
   }, []);
 
 
-  function fetchComments() {
-    getComments().then(res => {
+  const fetchComments = useCallback(() => {
+      getComments().then(res => {
       setComments(res.data)
       setAllComments(res.data)
     })
-  }
+  }, [])
 
 
   const handleRequestSort = useCallback((
@@ -73,32 +73,36 @@ const [allComments, setAllComments] = useState<Array<CommentEntity>>([]);
   }, [selected])
 
 
-  const handleChangePage = (event: unknown, newPage: number) => {
+  const handleChangePage = useCallback((event: unknown, newPage: number) => {
     setPage(newPage);
-  };
+  }, [])
 
-  const handleChangeRowsPerPage = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleChangeRowsPerPage = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
-  };
+  }, [])
 
   const handleRemoveClick = useCallback(() => {
     const filteredRows = comments.filter((row: CommentEntity) => {
       return !selected.includes(row.name)
     })
     setComments(filteredRows)
+    setAllComments(filteredRows)
     setSelected([]);
   }, [comments, selected])
 
-const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
-  const value = event.target.value;
-  const filteredRows = allComments.filter((row: CommentEntity) => row.name.includes(value));
-  setComments(filteredRows);
-};
+  const handleCacheClick = useCallback(() => {
+    localStorage.setItem('cacheData', JSON.stringify(selected))
+    setSelected([])
+  }, [selected])
 
+  const handleSearchChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    const filteredRows = allComments.filter((row: CommentEntity) => row.name.includes(value));
+    setComments(filteredRows);
+  }, [allComments])
 
-
-  const isSelected = (name: string) => selected.indexOf(name) !== -1;
+  const isSelected = useCallback((name: string) => selected.indexOf(name) !== -1, [selected])
 
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - comments.length) : 0;
@@ -110,7 +114,6 @@ const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
         page * rowsPerPage + rowsPerPage,
       ),
     [order, orderBy, page, comments, rowsPerPage],
-
   );
 
   return (
@@ -120,6 +123,7 @@ const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
           numSelected={selected.length}
           handleRemoveClick={handleRemoveClick}
           handleSearchChange={handleSearchChange}
+          handleCacheClick={handleCacheClick}
         />
         <TableContainer>
           <Table
@@ -128,12 +132,9 @@ const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
             size={'medium'}
           >
             <TableHeader
-              numSelected={selected.length}
               order={order}
               orderBy={orderBy}
-              onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
-              rowCount={comments.length}
             />
             <MainTable
               visibleComments={visibleComments}
