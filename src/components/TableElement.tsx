@@ -2,10 +2,10 @@ import { Checkbox, TableCell, TableRow } from "@mui/material";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { getPost, getUser } from "../api/fetchData";
 import { CommentEntity, PostEntity, UserEntity } from "../dto/types";
-import TableModal from "./TableModal";
 
 interface TableRowProps {
     isItemSelected: boolean;
+    handleClickTableRow: (post: PostEntity, user: UserEntity) => void;
     row: CommentEntity;
     handleClick: (event: any, name: string) => void;
     labelId: string;
@@ -14,31 +14,28 @@ interface TableRowProps {
 }
 
 const TableElement = (props: TableRowProps) => {
-    const { isItemSelected, row, handleClick, labelId, isModalOpened, setIsModalOpened } = props;
+    const { isItemSelected, handleClickTableRow, row, handleClick, labelId, isModalOpened, setIsModalOpened } = props;
     const [currentPost, setCurrentPost] = useState<PostEntity>();
     const [currentUser, setCurrentUser] = useState<UserEntity>();
 
     useEffect(() => {
         getPost(row.postId).then(res => setCurrentPost(res.data));
-    }, [row.postId]);
-
-    useEffect(() => {
         if (currentPost?.userId) {
             getUser(currentPost.userId).then((res: any) => setCurrentUser(res.data));
         }
-    }, [currentPost]);
+    }, [row.postId, currentPost]);
 
     return (
         <>
             <TableRow
                 hover
+                onClick={() => handleClickTableRow( (currentPost as PostEntity), (currentUser as UserEntity))}
                 role="checkbox"
                 aria-checked={isItemSelected}
                 tabIndex={-1}
                 key={row.id}
                 selected={isItemSelected}
                 sx={{ cursor: 'pointer' }}
-                onClick={() => setIsModalOpened(true)}
             >
                 <TableCell padding="checkbox">
                     <Checkbox
@@ -64,9 +61,7 @@ const TableElement = (props: TableRowProps) => {
                 <TableCell align="left">{currentPost?.title}</TableCell>
                 <TableCell align="left">{currentUser?.name}</TableCell>
             </TableRow>
-            {isModalOpened && <TableModal
-                setIsModalOpened={setIsModalOpened}
-            />}
+
         </>
     )
 }

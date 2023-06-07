@@ -13,3 +13,7 @@ export const getPost = async (id: number) => {
 export const getUser = async (id: number = 1) => {
     return axios.get(baseUrl + 'users/' + id)
 }
+
+export const getCommentsByPost = async (postId: number = 1) => {
+  return axios.get(baseUrl + 'comments?postId=' + postId)
+}

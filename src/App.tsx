@@ -3,7 +3,7 @@ import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
-import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { getComments } from './api/fetchData';
 import { getComparator, stableSort } from './api/utils';
 import MainTable from './components/MainTable';
@@ -11,7 +11,7 @@ import TableHeader from './components/TableHeader';
 import TableToolbar from './components/TableToolbar';
 import { CommentEntity } from './dto/types';
 
-export default function App() {
+function App() {
   const [order, setOrder] = useState<'asc' | 'desc'>('asc');
   const [orderBy, setOrderBy] = useState<string>('email');
   const [selected, setSelected] = useState<readonly string[]>([]);
@@ -40,7 +40,7 @@ const [allComments, setAllComments] = useState<Array<CommentEntity>>([]);
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
-  }, [order])
+  }, [orderBy, order])
 
   const handleSelectAllClick = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
@@ -52,6 +52,7 @@ const [allComments, setAllComments] = useState<Array<CommentEntity>>([]);
   }, [comments])
 
   const handleClick = useCallback((event: any, name: string) => {
+    event.stopPropagation()
     const selectedIndex = selected.indexOf(name);
     let newSelected: readonly string[] = [];
 
@@ -155,3 +156,5 @@ const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     </Box>
   );
 }
+
+export default React.memo(App)

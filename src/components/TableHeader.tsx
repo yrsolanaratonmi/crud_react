@@ -61,7 +61,7 @@ function TableHeader(props: TableProps) {
         </TableCell>
         {headCells.map((headCell) => (
           <TableCell
-            key={Math.random()}
+            key={headCell.label}
             align={headCell.numeric ? 'right' : 'left'}
             padding='normal'
             sortDirection={orderBy === headCell.id ? order : false}
