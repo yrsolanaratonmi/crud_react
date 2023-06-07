@@ -42,14 +42,6 @@ function App() {
     setOrderBy(property);
   }, [orderBy, order])
 
-  const handleSelectAllClick = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    if (event.target.checked) {
-      const newSelected = comments.map((n) => n.name);
-      setSelected(newSelected);
-      return;
-    }
-    setSelected([]);
-  }, [comments])
 
   const handleClick = useCallback((event: any, name: string) => {
     event.stopPropagation()
